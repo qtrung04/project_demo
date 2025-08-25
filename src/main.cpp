@@ -1,7 +1,3 @@
-#define BLYNK_TEMPLATE_ID "TMPL6Pa74tSP8"
-#define BLYNK_TEMPLATE_NAME "Smart door"
-#define BLYNK_AUTH_TOKEN "WHCRY6Rcm76o659_eWg94N4bqJfJDF3e"
-
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <BlynkSimpleEsp32.h>
@@ -11,6 +7,8 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
 
+#include "config.h"
+
 #define PIN_door 13
 
 #define TFT_CS 5
@@ -19,25 +17,9 @@
 #define TFT_SCLK 18
 #define TFT_MOSI 23
 
-int max_attempts = 3;
-int lock_time_seconds = 60;
-
-#define EEPROM_ADDR_ATTEMPTS 10
-#define EEPROM_ADDR_LOCKTIME 20
-
-char password[6] = "12345";
-char mode_changePass[6] = "*#01#";
-
 char data_input[6];
 char new_pass1[6];
 char new_pass2[6];
-
-char keys[4][4] = {{'1', '2', '3', 'A'},
-                   {'4', '5', '6', 'B'},
-                   {'7', '8', '9', 'C'},
-                   {'*', '0', '#', 'D'}};
-byte rowPins[4] = {14, 27, 26, 25};
-byte colPins[4] = {33, 32, 19, 21};
 
 SPIClass spi = SPIClass(VSPI);
 Adafruit_ST7735 tft = Adafruit_ST7735(&spi, TFT_CS, TFT_DC, TFT_RST);
@@ -327,7 +309,8 @@ BLYNK_WRITE(V1) {
   }
   writeEpprom(new_passBlynk);
   insertData(password, new_passBlynk);
-  Blynk.logEvent("change_pass", String("Password changed via Blynk: ") + new_passBlynk);
+  Blynk.logEvent("change_pass",
+                 String("Password changed via Blynk: ") + new_passBlynk);
   tft.setCursor(8, 60);
   tft.print("Changed pass");
   delay(2000);

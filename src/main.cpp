@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 #include <BlynkSimpleEsp32.h>
@@ -7,15 +9,6 @@
 #include <WiFi.h>
 #include <WiFiManager.h>
 
-#include "config.h"
-
-#define PIN_door 13
-
-#define TFT_CS 5
-#define TFT_RST 4
-#define TFT_DC 2
-#define TFT_SCLK 18
-#define TFT_MOSI 23
 
 char data_input[6];
 char new_pass1[6];
@@ -125,9 +118,9 @@ void openDoor() {
   tft.fillScreen(ST77XX_BLACK);
   tft.setCursor(26, 54);
   tft.print("OPEN DOOR");
-  digitalWrite(PIN_door, HIGH);
+  digitalWrite(PIN_DOOR, HIGH);
   delay(3000);
-  digitalWrite(PIN_door, LOW);
+  digitalWrite(PIN_DOOR, LOW);
   Blynk.virtualWrite(V0, 0);
   tft.fillScreen(ST77XX_BLACK);
   index_t = 0;
@@ -221,8 +214,8 @@ void setup() {
   max_attempts = EEPROM.read(EEPROM_ADDR_ATTEMPTS);
   EEPROM.get(EEPROM_ADDR_LOCKTIME, lock_time_seconds);
 
-  pinMode(PIN_door, OUTPUT);
-  digitalWrite(PIN_door, LOW);
+  pinMode(PIN_DOOR, OUTPUT);
+  digitalWrite(PIN_DOOR, LOW);
 
   WiFi.mode(WIFI_STA);
   WiFiManager wm;

@@ -1,7 +1,6 @@
 #include "config.h"
+#include "printfOut.h"
 
-#include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
 #include <BlynkSimpleEsp32.h>
 #include <EEPROM.h>
 #include <Keypad.h>
@@ -14,32 +13,11 @@ char data_input[6];
 char new_pass1[6];
 char new_pass2[6];
 
-SPIClass spi = SPIClass(VSPI);
-Adafruit_ST7735 tft = Adafruit_ST7735(&spi, TFT_CS, TFT_DC, TFT_RST);
-
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, 4, 4);
 
 unsigned char index_t = 0, in_num = 0, error_pass = 0;
 bool isLocked = false;
 unsigned long lock_start_time = 0;
-
-void centerText(String text, int y) {
-  tft.setTextSize(2);  // Kích thước chữ
-  tft.setTextColor(ST77XX_WHITE);
-
-  int16_t x1, y1;
-  uint16_t w, h;
-
-  // Lấy kích thước pixel của chữ
-  tft.getTextBounds(text, 0, y, &x1, &y1, &w, &h);
-
-  // Tính tọa độ X để căn giữa
-  int x = (tft.width() - w) / 2;
-
-  // Hiển thị
-  tft.setCursor(x, y);
-  tft.print(text);
-}
 
 void writeEpprom(char data[]) {
   for (int i = 0; i < 5; i++) EEPROM.write(i, data[i]);
@@ -76,12 +54,10 @@ void getData() {
   if (key) {
     if (in_num < 5) {
       data_input[in_num] = key;
-      tft.setCursor(48 + 12 * in_num, 80);
-      tft.print(data_input[in_num]);
+      tftprint(String(data_input[in_num]), 48 + 12 * in_num, 80);
       delay(200);
       tft.fillRect(48 + 12 * in_num, 80, 12, 16, ST77XX_BLACK);
-      tft.setCursor(48 + 12 * in_num, 80);
-      tft.print("*");
+      tftprint("*", 48 + 12 * in_num, 80);
       in_num++;
     }
   }
@@ -102,8 +78,7 @@ void checkPass() {
       clear_data_input();
       error_pass++;
       tft.fillScreen(ST77XX_BLACK);
-      tft.setCursor(20, 54);
-      tft.print("Wrong Pass");
+      tftprint("Wrong Pass", 20, 54);
       delay(1000);
       if (error_pass >= max_attempts) {
         index_t = 3;  // trigger locktime
@@ -116,11 +91,10 @@ void checkPass() {
 
 void openDoor() {
   tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(26, 54);
-  tft.print("OPEN DOOR");
-  digitalWrite(PIN_DOOR, HIGH);
+  tftprint("OPEN DOOR", 26, 54);
+  digitalWrite(PIN_door, HIGH);
   delay(3000);
-  digitalWrite(PIN_DOOR, LOW);
+  digitalWrite(PIN_door, LOW);
   Blynk.virtualWrite(V0, 0);
   tft.fillScreen(ST77XX_BLACK);
   index_t = 0;
@@ -130,12 +104,9 @@ void changePass() {
   char current_pass_input[6];
   clear_data_input();
   tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(2, 30);
-  tft.print("-CHANGE PASS-");
+  centerText("CHANGE PASS", 30);
   delay(500);
-
-  tft.setCursor(0, 56);
-  tft.print("Enter Pass:");
+  tftprint("Enter Pass:", 0, 56);
   while (1) {
     getData();
     if (isBufferdata(data_input)) {
@@ -147,8 +118,7 @@ void changePass() {
 
   if (!compareData(current_pass_input, password)) {
     tft.fillScreen(ST77XX_BLACK);
-    tft.setCursor(20, 54);
-    tft.print("Wrong Pass");
+    centerText("Wrong Pass", 54);
     delay(2000);
     tft.fillScreen(ST77XX_BLACK);
     index_t = 0;
@@ -156,8 +126,7 @@ void changePass() {
   }
 
   tft.fillRect(0, 56, 160, 40, ST77XX_BLACK);
-  tft.setCursor(0, 56);
-  tft.print("New Pass:");
+  tftprint("New Pass:", 0, 56);
   while (1) {
     getData();
     if (isBufferdata(data_input)) {
@@ -168,8 +137,7 @@ void changePass() {
   }
 
   tft.fillRect(0, 56, 160, 40, ST77XX_BLACK);
-  tft.setCursor(0, 56);
-  tft.print("Again newPass");
+  tftprint("Again newPass", 0, 56);
   while (1) {
     getData();
     if (isBufferdata(data_input)) {
@@ -183,12 +151,10 @@ void changePass() {
     writeEpprom(new_pass2);
     insertData(password, new_pass2);
     tft.fillScreen(ST77XX_BLACK);
-    tft.setCursor(2, 54);
-    tft.print("-- Success --");
+    centerText("-- Success --", 54);
   } else {
     tft.fillScreen(ST77XX_BLACK);
-    tft.setCursor(20, 54);
-    tft.print("Mismatched");
+    centerText("Mismatched", 54);
   }
 
   delay(1000);
@@ -200,10 +166,8 @@ void startLocktime() {
   isLocked = true;
   lock_start_time = millis();
   tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0, 30);
-  tft.print("WRONG " + String(max_attempts) + " TIMES");
-  tft.setCursor(0, 60);
-  tft.print("Try again in");
+  tftprint("WRONG " + String(max_attempts) + " TIMES", 0, 30);
+  tftprint("Try again in", 0, 60);
 }
 
 void setup() {
@@ -214,8 +178,8 @@ void setup() {
   max_attempts = EEPROM.read(EEPROM_ADDR_ATTEMPTS);
   EEPROM.get(EEPROM_ADDR_LOCKTIME, lock_time_seconds);
 
-  pinMode(PIN_DOOR, OUTPUT);
-  digitalWrite(PIN_DOOR, LOW);
+  pinMode(PIN_door, OUTPUT);
+  digitalWrite(PIN_door, LOW);
 
   WiFi.mode(WIFI_STA);
   WiFiManager wm;
@@ -226,21 +190,14 @@ void setup() {
   }
 
   Blynk.begin(BLYNK_AUTH_TOKEN, WiFi.SSID().c_str(), WiFi.psk().c_str());
-
-  spi.begin(TFT_SCLK, -1, TFT_MOSI, TFT_CS);
-  tft.initR(INITR_BLACKTAB);
-  tft.setRotation(1);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(2);
+  tftInit();
 }
 
 void loop() {
   Blynk.run();
 
   if (!isLocked) {
-    tft.setCursor(0, 30);
-    tft.print("Enter Pass");
+    tftprint("Enter Pass", 0, 30);
     checkPass();
   }
 
@@ -302,10 +259,8 @@ BLYNK_WRITE(V1) {
   }
   writeEpprom(new_passBlynk);
   insertData(password, new_passBlynk);
-  Blynk.logEvent("change_pass",
-                 String("Password changed via Blynk: ") + new_passBlynk);
-  tft.setCursor(8, 60);
-  tft.print("Changed pass");
+  Blynk.logEvent("change_pass", String("Password changed via Blynk: ") + new_passBlynk);
+  centerText("Changed pass", 60);
   delay(2000);
   tft.fillScreen(ST77XX_BLACK);
 }
@@ -319,8 +274,7 @@ BLYNK_WRITE(V3) {
   EEPROM.write(EEPROM_ADDR_ATTEMPTS, max_attempts);
   EEPROM.commit();
   Serial.printf("🔐 Max attempts set to %d\n", max_attempts);
-  tft.setCursor(0, 60);
-  tft.print("Attempts = " + String(max_attempts));
+  tftprint("Attempts = " + String(max_attempts), 0, 60);
   delay(2000);
   tft.fillRect(0, 60, 160, 16, ST77XX_BLACK);
 }
@@ -330,10 +284,8 @@ BLYNK_WRITE(V4) {
   EEPROM.put(EEPROM_ADDR_LOCKTIME, lock_time_seconds);
   EEPROM.commit();
   Serial.printf("⏳ Lock time set to: %d\n", lock_time_seconds);
-  tft.setCursor(0, 60);
-  tft.print("Set lockTime ");
-  tft.setCursor(0, 80);
-  tft.print("to = " + String(lock_time_seconds) + "s");
+  tftprint("Set lockTime ", 0, 60);
+  tftprint("to = " + String(lock_time_seconds) + "s", 0, 80);
   delay(2000);
   tft.fillRect(0, 60, 160, 50, ST77XX_BLACK);
 }

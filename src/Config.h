@@ -1,15 +1,16 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <Arduino.h>
 
 // === BLYNK ===
 #define BLYNK_TEMPLATE_ID "TMPL6Pa74tSP8"
 #define BLYNK_TEMPLATE_NAME "Smart door"
 #define BLYNK_AUTH_TOKEN "WHCRY6Rcm76o659_eWg94N4bqJfJDF3e"
 
+#include <Arduino.h> 
+
 // === PINOUT ===
-#define PIN_DOOR 13
+#define PIN_door 13
 
 // TFT LCD
 #define TFT_CS 5
@@ -18,8 +19,8 @@
 #define TFT_SCLK 18
 #define TFT_MOSI 23
 
-int max_attempts = 3;
-int lock_time_seconds = 60;
+inline int max_attempts = 3;
+inline int lock_time_seconds = 60;
 
 // Keypad
 #define ROWS 4
@@ -32,8 +33,8 @@ static char keys[ROWS][COLS] = {{'1', '2', '3', 'A'},
                                 {'7', '8', '9', 'C'},
                                 {'*', '0', '#', 'D'}};
 
-char password[6] = "12345";
-char mode_changePass[6] = "*#01#";
+inline char password[6] = "12345";
+inline char mode_changePass[6] = "*#01#";
 
 // EEPROM
 #define EEPROM_ADDR_ATTEMPTS 10

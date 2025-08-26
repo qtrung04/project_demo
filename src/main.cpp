@@ -1,53 +1,16 @@
 #include "config.h"
-#include "printfOut.h"
+#include "Display.h"
+#include "passwordManager.h"
 
 #include <BlynkSimpleEsp32.h>
-#include <EEPROM.h>
 #include <Keypad.h>
-#include <SPI.h>
 #include <WiFi.h>
 #include <WiFiManager.h>
 
-
-char data_input[6];
 char new_pass1[6];
 char new_pass2[6];
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, 4, 4);
-
-unsigned char index_t = 0, in_num = 0, error_pass = 0;
-bool isLocked = false;
-unsigned long lock_start_time = 0;
-
-void writeEpprom(char data[]) {
-  for (int i = 0; i < 5; i++) EEPROM.write(i, data[i]);
-  EEPROM.commit();
-}
-
-void readEpprom() {
-  for (int i = 0; i < 5; i++) password[i] = EEPROM.read(i);
-}
-
-void clear_data_input() {
-  for (int i = 0; i < 6; i++) data_input[i] = '\0';
-  in_num = 0;
-}
-
-bool isBufferdata(char data[]) {
-  for (int i = 0; i < 5; i++)
-    if (data[i] == '\0') return false;
-  return true;
-}
-
-bool compareData(char d1[], char d2[]) {
-  for (int i = 0; i < 5; i++)
-    if (d1[i] != d2[i]) return false;
-  return true;
-}
-
-void insertData(char dest[], char src[]) {
-  for (int i = 0; i < 5; i++) dest[i] = src[i];
-}
 
 void getData() {
   char key = keypad.getKey();
@@ -190,6 +153,7 @@ void setup() {
   }
 
   Blynk.begin(BLYNK_AUTH_TOKEN, WiFi.SSID().c_str(), WiFi.psk().c_str());
+
   tftInit();
 }
 
@@ -234,17 +198,16 @@ void loop() {
   }
 }
 
-// === BLYNK ===
 BLYNK_WRITE(V0) {
   int pinValue = param.asInt();
   if (pinValue == 1) {
-    Serial.println("🔓 Unlocking via Blynk");
+    Serial.println("Unlocking via Blynk");
 
     if (isLocked) {
       isLocked = false;
       index_t = 0;
       tft.fillScreen(ST77XX_BLACK);
-      Serial.println("✅ Locktime canceled");
+      Serial.println("Locktime canceled");
     }
 
     index_t = 2;
@@ -259,7 +222,8 @@ BLYNK_WRITE(V1) {
   }
   writeEpprom(new_passBlynk);
   insertData(password, new_passBlynk);
-  Blynk.logEvent("change_pass", String("Password changed via Blynk: ") + new_passBlynk);
+  Blynk.logEvent("change_pass",
+                 String("Password changed via Blynk: ") + new_passBlynk);
   centerText("Changed pass", 60);
   delay(2000);
   tft.fillScreen(ST77XX_BLACK);
@@ -273,7 +237,7 @@ BLYNK_WRITE(V3) {
   max_attempts = param.asInt();
   EEPROM.write(EEPROM_ADDR_ATTEMPTS, max_attempts);
   EEPROM.commit();
-  Serial.printf("🔐 Max attempts set to %d\n", max_attempts);
+  Serial.printf("Max attempts set to %d\n", max_attempts);
   tftprint("Attempts = " + String(max_attempts), 0, 60);
   delay(2000);
   tft.fillRect(0, 60, 160, 16, ST77XX_BLACK);
@@ -283,7 +247,7 @@ BLYNK_WRITE(V4) {
   lock_time_seconds = param.asInt();
   EEPROM.put(EEPROM_ADDR_LOCKTIME, lock_time_seconds);
   EEPROM.commit();
-  Serial.printf("⏳ Lock time set to: %d\n", lock_time_seconds);
+  Serial.printf("Lock time set to: %d\n", lock_time_seconds);
   tftprint("Set lockTime ", 0, 60);
   tftprint("to = " + String(lock_time_seconds) + "s", 0, 80);
   delay(2000);

@@ -9,4 +9,8 @@ bool isBufferdata(char data[]);
 bool compareData(char d1[], char d2[]);
 void insertData(char dest[], char src[]);
 void clear_data_input();
+
+void checkPass();
+void changePass();
+
 #endif

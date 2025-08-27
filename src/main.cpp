@@ -1,56 +1,11 @@
 #include "config.h"
 #include "Display.h"
 #include "passwordManager.h"
+#include "keypadHandler.h"
 
 #include <BlynkSimpleEsp32.h>
-#include <Keypad.h>
 #include <WiFi.h>
 #include <WiFiManager.h>
-
-char new_pass1[6];
-char new_pass2[6];
-
-Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, 4, 4);
-
-void getData() {
-  char key = keypad.getKey();
-  if (key) {
-    if (in_num < 5) {
-      data_input[in_num] = key;
-      tftprint(String(data_input[in_num]), 48 + 12 * in_num, 80);
-      delay(200);
-      tft.fillRect(48 + 12 * in_num, 80, 12, 16, ST77XX_BLACK);
-      tftprint("*", 48 + 12 * in_num, 80);
-      in_num++;
-    }
-  }
-}
-
-void checkPass() {
-  getData();
-  if (isBufferdata(data_input)) {
-    if (compareData(data_input, password)) {
-      tft.fillScreen(ST77XX_BLACK);
-      clear_data_input();
-      index_t = 2;
-    } else if (compareData(data_input, mode_changePass)) {
-      tft.fillScreen(ST77XX_BLACK);
-      clear_data_input();
-      index_t = 1;
-    } else {
-      clear_data_input();
-      error_pass++;
-      tft.fillScreen(ST77XX_BLACK);
-      tftprint("Wrong Pass", 20, 54);
-      delay(1000);
-      if (error_pass >= max_attempts) {
-        index_t = 3;  // trigger locktime
-      } else {
-        tft.fillScreen(ST77XX_BLACK);
-      }
-    }
-  }
-}
 
 void openDoor() {
   tft.fillScreen(ST77XX_BLACK);
@@ -63,67 +18,7 @@ void openDoor() {
   index_t = 0;
 }
 
-void changePass() {
-  char current_pass_input[6];
-  clear_data_input();
-  tft.fillScreen(ST77XX_BLACK);
-  centerText("CHANGE PASS", 30);
-  delay(500);
-  tftprint("Enter Pass:", 0, 56);
-  while (1) {
-    getData();
-    if (isBufferdata(data_input)) {
-      insertData(current_pass_input, data_input);
-      clear_data_input();
-      break;
-    }
-  }
 
-  if (!compareData(current_pass_input, password)) {
-    tft.fillScreen(ST77XX_BLACK);
-    centerText("Wrong Pass", 54);
-    delay(2000);
-    tft.fillScreen(ST77XX_BLACK);
-    index_t = 0;
-    return;
-  }
-
-  tft.fillRect(0, 56, 160, 40, ST77XX_BLACK);
-  tftprint("New Pass:", 0, 56);
-  while (1) {
-    getData();
-    if (isBufferdata(data_input)) {
-      insertData(new_pass1, data_input);
-      clear_data_input();
-      break;
-    }
-  }
-
-  tft.fillRect(0, 56, 160, 40, ST77XX_BLACK);
-  tftprint("Again newPass", 0, 56);
-  while (1) {
-    getData();
-    if (isBufferdata(data_input)) {
-      insertData(new_pass2, data_input);
-      clear_data_input();
-      break;
-    }
-  }
-
-  if (compareData(new_pass1, new_pass2)) {
-    writeEpprom(new_pass2);
-    insertData(password, new_pass2);
-    tft.fillScreen(ST77XX_BLACK);
-    centerText("-- Success --", 54);
-  } else {
-    tft.fillScreen(ST77XX_BLACK);
-    centerText("Mismatched", 54);
-  }
-
-  delay(1000);
-  tft.fillScreen(ST77XX_BLACK);
-  index_t = 0;
-}
 
 void startLocktime() {
   isLocked = true;
@@ -222,8 +117,7 @@ BLYNK_WRITE(V1) {
   }
   writeEpprom(new_passBlynk);
   insertData(password, new_passBlynk);
-  Blynk.logEvent("change_pass",
-                 String("Password changed via Blynk: ") + new_passBlynk);
+  Blynk.logEvent("change_pass", String("Password changed via Blynk: ") + new_passBlynk);
   centerText("Changed pass", 60);
   delay(2000);
   tft.fillScreen(ST77XX_BLACK);

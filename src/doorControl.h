@@ -2,6 +2,6 @@
 #define DOORCONTROL_H
 
 void doorInit();
-void DoorControl();
+void openDoor();
 
 #endif

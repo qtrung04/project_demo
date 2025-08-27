@@ -1,7 +1,8 @@
 #include "passwordManager.h"
+#include "Display.h"
+#include "blynkHandler.h"
 #include "config.h"
 #include "keypadHandler.h"
-#include "Display.h"
 
 char new_pass1[6];
 char new_pass2[6];
@@ -114,6 +115,8 @@ void changePass() {
     insertData(password, new_pass2);
     tft.fillScreen(ST77XX_BLACK);
     centerText("-- Success --", 54);
+    blynkWriteV1(String() + new_pass2);
+
   } else {
     tft.fillScreen(ST77XX_BLACK);
     centerText("Mismatched", 54);

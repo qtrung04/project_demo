@@ -1,7 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-
 // === BLYNK ===
 #define BLYNK_TEMPLATE_ID "TMPL6Pa74tSP8"
 #define BLYNK_TEMPLATE_NAME "Smart door"

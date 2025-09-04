@@ -93,7 +93,7 @@ BLYNK_WRITE(V1) {
   writeEpprom(new_passBlynk);
   insertData(password, new_passBlynk);
   Blynk.logEvent("change_pass", String("Password changed via Blynk: ") + new_passBlynk);
-  centerText("Changed pass", 60);
+  tftprint("Changed pass", 0, 60);
   delay(2000);
   tft.fillScreen(ST77XX_BLACK);
 }

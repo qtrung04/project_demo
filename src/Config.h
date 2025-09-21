@@ -18,9 +18,9 @@
 #define TFT_SCLK 18
 #define TFT_MOSI 23
 
-inline char data_input[6];
 inline int max_attempts = 3;
 inline int lock_time_seconds = 60;
+inline char data_input[6];
 inline unsigned char index_t = 0, in_num = 0, error_pass = 0;
 inline bool isLocked = false;
 inline unsigned long lock_start_time = 0;

@@ -6,7 +6,7 @@
 #define COLS 4
 
 static byte rowPins[ROWS] = {14, 27, 26, 25};
-static byte colPins[COLS] = {33, 32, 19, 21};
+static byte colPins[COLS] = {33, 32, 21, 13};
 
 static char keys[ROWS][COLS] = {{'1', '2', '3', 'A'},
                                 {'4', '5', '6', 'B'},

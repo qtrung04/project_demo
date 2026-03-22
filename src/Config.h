@@ -12,11 +12,15 @@
 #define PIN_door 13
 
 // TFT LCD
-#define TFT_CS 5
+#define TFT_CS 15
 #define TFT_RST 4
 #define TFT_DC 2
 #define TFT_SCLK 18
 #define TFT_MOSI 23
+
+// RFID
+#define SS_PIN 5
+#define RST_PIN 22
 
 inline int max_attempts = 3;
 inline int lock_time_seconds = 60;

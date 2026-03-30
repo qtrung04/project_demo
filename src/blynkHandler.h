@@ -8,5 +8,6 @@ void blynkUpdate();
 
 void blynkWriteV0(int state);
 void blynkWriteV1(String data);
+void logevent(String eventName, String data);
 
 #endif

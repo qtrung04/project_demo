@@ -2,12 +2,17 @@
 #define RFID_H
 
 #include <MFRC522.h>
+#include <Preferences.h>
 #include <SPI.h>
+
 #include "config.h"
 
-void saveUID(String uid);
-bool checkUID(String uid);
-void deleteUID(String uid);
+// ===== RFID =====
+MFRC522 mfrc522(SS_PIN, RST_PIN);
 
+// ===== Preferences =====
+Preferences prefs;
+
+void RFIDinit();
 
 #endif

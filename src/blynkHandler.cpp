@@ -6,14 +6,6 @@
 
 #include <BlynkSimpleEsp32.h>
 
-void startLocktime() {
-  isLocked = true;
-  lock_start_time = millis();
-  tft.fillScreen(ST77XX_BLACK);
-  tftprint("WRONG " + String(max_attempts) + " TIMES", 0, 30);
-  tftprint("Try again in", 0, 60);
-}
-
 void blynkInit() {
   Serial.println("Initializing Blynk...");
   Blynk.begin(BLYNK_AUTH_TOKEN, WiFi.SSID().c_str(), WiFi.psk().c_str());
@@ -22,42 +14,6 @@ void blynkInit() {
 
 void blynkUpdate() {
   Blynk.run();
-  if (!isLocked) {
-    tftprint("Enter Pass", 0, 30);
-    checkPass();
-  }
-
-  if (index_t == 1) {
-    changePass();
-    Blynk.logEvent("change_pass", String("Password changed: ") + password);
-  }
-
-  if (index_t == 2) {
-    Blynk.virtualWrite(V0, HIGH);
-    openDoor();
-    error_pass = 0;
-  }
-
-  if (index_t == 3 && !isLocked) {
-    Blynk.logEvent("error", "Cảnh báo đột nhập");
-    startLocktime();
-  }
-  if (isLocked) {
-    static int last_remain = -1;
-    unsigned long elapsed = (millis() - lock_start_time) / 1000;
-    int remain = lock_time_seconds - elapsed;
-
-    if (remain >= 0 && remain != last_remain) {
-      tft.fillRect(0, 90, 160, 16, ST77XX_BLACK);
-      centerText(String(remain) + "(s)", 90);
-      last_remain = remain;
-    }
-    if (elapsed >= lock_time_seconds) {
-      isLocked = false;
-      index_t = 0;
-      tft.fillScreen(ST77XX_BLACK);
-    }
-  }
 }
 
 void blynkWriteV0(int state) {
@@ -66,6 +22,10 @@ void blynkWriteV0(int state) {
 
 void blynkWriteV1(String data) {
   Blynk.virtualWrite(V1, data);
+}
+
+void logevent(String eventName, String data) {
+  Blynk.logEvent(eventName.c_str(), data.c_str());
 }
 
 BLYNK_WRITE(V0) {

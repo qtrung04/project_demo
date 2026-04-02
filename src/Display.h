@@ -13,6 +13,6 @@ extern Adafruit_ST7735 tft;
 void tftInit();
 
 void centerText(String text, int y);
-void tftprint(String text, int x, int y);
+void tftprint(int s, String text, int x, int y);
 
 #endif

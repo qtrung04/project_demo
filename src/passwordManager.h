@@ -12,5 +12,6 @@ void clear_data_input();
 
 void checkPass();
 void changePass();
+void manageRFID();
 
 #endif

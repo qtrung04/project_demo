@@ -29,7 +29,8 @@ void centerText(String text, int y) {
   tft.setCursor(x, y);
   tft.print(text);
 }
-void tftprint(String text, int x, int y) {
+void tftprint(int s, String text, int x, int y) {
+  tft.setTextSize(s);  // Kích thước chữ
   tft.setCursor(x, y);
   tft.print(text);
 }

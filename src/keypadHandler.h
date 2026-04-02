@@ -3,6 +3,8 @@
 
 #include <Keypad.h>
 
+extern Keypad keypad;
+
 void getData();
 
 #endif

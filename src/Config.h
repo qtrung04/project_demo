@@ -31,6 +31,7 @@ inline unsigned long lock_start_time = 0;
 
 inline char password[6] = "12345";
 inline char mode_changePass[6] = "*#01#";
+inline char mode_manageRFID[6] = "*#02#";
 
 // EEPROM
 #define EEPROM_ADDR_ATTEMPTS 10

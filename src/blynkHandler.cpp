@@ -53,7 +53,7 @@ BLYNK_WRITE(V1) {
   writeEpprom(new_passBlynk);
   insertData(password, new_passBlynk);
   Blynk.logEvent("change_pass", String("Password changed via Blynk: ") + new_passBlynk);
-  tftprint("Changed pass", 0, 60);
+  tftprint(2, "Changed pass", 0, 60);
   delay(2000);
   tft.fillScreen(ST77XX_BLACK);
 }
@@ -67,7 +67,7 @@ BLYNK_WRITE(V3) {
   EEPROM.write(EEPROM_ADDR_ATTEMPTS, max_attempts);
   EEPROM.commit();
   Serial.printf("Max attempts set to %d\n", max_attempts);
-  tftprint("Attempts = " + String(max_attempts), 0, 60);
+  tftprint(2, "Attempts = " + String(max_attempts), 0, 60);
   delay(2000);
   tft.fillRect(0, 60, 160, 16, ST77XX_BLACK);
 }
@@ -77,8 +77,8 @@ BLYNK_WRITE(V4) {
   EEPROM.put(EEPROM_ADDR_LOCKTIME, lock_time_seconds);
   EEPROM.commit();
   Serial.printf("Lock time set to: %d\n", lock_time_seconds);
-  tftprint("Set lockTime ", 0, 60);
-  tftprint("to = " + String(lock_time_seconds) + "s", 0, 80);
+  tftprint(2, "Set lockTime ", 0, 60);
+  tftprint(2, "to = " + String(lock_time_seconds) + "s", 0, 80);
   delay(2000);
   tft.fillRect(0, 60, 160, 50, ST77XX_BLACK);
 }
